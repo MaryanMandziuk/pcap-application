@@ -23,19 +23,19 @@ public class PcapApplication {
         
         System.out.println("PCap application"); 
        
+        String[] myArgs = {"-f","iperf-mptcp-0-0.pcap", "my.pcap"};
+        PcapCommandLineParser parser = new PcapCommandLineParser(myArgs);
+         
         
-        PcapCommandLineParser parser = new PcapCommandLineParser(args);
-        System.out.println(parser.getPcapInOutFiles().getOutFile().getName());
-        System.out.println(parser.getPcapInOutFiles().getInFile().getName());
-        ApplicationHandler handler = new ApplicationHandler(parser.getPcapInOutFiles().getOutFile());
-        PCapImportTask importTask = PCapHelper.createImportTask(parser.getPcapInOutFiles().getInFile(), handler);
+        ApplicationHandler handler = new ApplicationHandler(parser.getOutFile());
+        PCapImportTask importTask = PCapHelper.createImportTask(parser.getInFile(), handler);
         importTask.init();
 
         while(!importTask.isFinished()) {
             importTask.processNext();
         }
         
-       
+        handler.showSavedPacketsTime();
     }
     
 }

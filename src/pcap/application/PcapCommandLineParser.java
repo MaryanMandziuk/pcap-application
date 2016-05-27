@@ -26,7 +26,8 @@ public class PcapCommandLineParser {
     private final CommandLineParser parser = new DefaultParser();
     private final Options options = new Options();
     private CommandLine commandLine;
-    private PcapInOutFiles files;
+    private File outFile;
+    private File inFile;
     
     
     public PcapCommandLineParser(String[] args) {
@@ -63,11 +64,11 @@ public class PcapCommandLineParser {
     
     private void processFilesOption() {
 
-        this.files = new PcapInOutFiles(new File(commandLine.getOptionValues("f")[0]),
-                new File(commandLine.getOptionValues("f")[1]));
+        this.outFile = new File(commandLine.getOptionValues("f")[1]);
+        this.inFile = new File(commandLine.getOptionValues("f")[0]);
         try {
-            if(!this.files.getOutFile().exists()) {
-                this.files.getOutFile().createNewFile();
+            if(!this.outFile.exists()) {
+                this.outFile.createNewFile();
             }
         } catch (IOException e) {
             System.err.println("OutFile wasn't created" + e);
@@ -76,7 +77,11 @@ public class PcapCommandLineParser {
     }
     
     
-    public PcapInOutFiles getPcapInOutFiles() {
-        return this.files;
+    public File getInFile() {
+        return this.inFile;
+    }
+    
+    public File getOutFile() {
+        return this.outFile;
     }
 }

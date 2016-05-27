@@ -13,14 +13,18 @@ import java.io.IOException;
 
 import net.taunova.importer.pcap.PCapDatalink;
 import net.taunova.importer.pcap.PCapEventHandler;
-import net.taunova.importer.pcap.PCapVersion;
+import net.taunova.importer.pcap.PCapInfo;
+import net.taunova.importer.pcap.PCapConst;
 /**
  *
  * @author maryan
  */
-public class ApplicationHandler implements PCapEventHandler{
+public class ApplicationHandler implements PCapEventHandler {
     
     public DataOutputStream outStream;
+    
+    private long time;
+    private int packetCount;
     
     public ApplicationHandler(File file) throws FileNotFoundException {
         this.outStream = new DataOutputStream(new FileOutputStream(file));
@@ -42,13 +46,15 @@ public class ApplicationHandler implements PCapEventHandler{
     }
 
     @Override
-    public void handleInfo(PCapVersion version, PCapDatalink type) {
-        final int BE_MAGIC = 0xa1b2c3d4;
+    public void handleInfo(PCapInfo info, PCapDatalink type) {
+        System.out.println("Info: " + info + " type: " + type);
         try {
-            System.out.println("Info: " + version + " type: " + type);
-            outStream.writeInt(BE_MAGIC);
-            outStream.writeShort(version.getMajor());
-            outStream.writeShort(version.getMinor());
+            outStream.writeInt(PCapConst.BE_MAGIC);
+            outStream.writeShort(info.getMajor());
+            outStream.writeShort(info.getMinor());
+            outStream.writeInt(info.getZone());
+            outStream.writeInt(info.getAccuracy());
+            outStream.writeInt(info.getSnapshotLenght());
             outStream.writeInt(type.getType());
         } catch (IOException ex) {
             System.err.println(ex);
@@ -60,21 +66,30 @@ public class ApplicationHandler implements PCapEventHandler{
     public void handleEntity(int saved, int actual, long timestamp, DataInputStream stream) throws IOException {
         System.out.println("  Packet # saved: " + saved + " timestamp: " + timestamp);
         
-        byte[] b = new byte[saved];
+        byte[] packet = new byte[saved];
         int seconds = (int) (timestamp / 1000000);    
         int microseconds = (int) (timestamp % 1000000); 
-
-        stream.read(b);
+        
+        stream.read(packet);
+        long startTime = System.currentTimeMillis();
         try {
             
             outStream.writeInt(seconds);
             outStream.writeInt(microseconds);
             outStream.writeInt(saved);
             outStream.writeInt(actual);
-            outStream.write(b);
+            outStream.write(packet);
         } catch (IOException ex) {
             System.err.println(ex);
         }
+        long endTime = System.currentTimeMillis();
+        
+        time += (endTime - startTime);
+        packetCount++;
+    }
+    
+    public void showSavedPacketsTime() {
+        System.out.println("Number of packets = " + packetCount + " saved for = " + time + " ms");
     }
     
 }
