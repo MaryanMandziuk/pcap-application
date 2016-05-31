@@ -7,7 +7,6 @@ package pcap.application;
 
 import java.io.File;
 import java.io.IOException;
-import static java.lang.System.exit;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -15,6 +14,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -28,9 +29,9 @@ public class PcapCommandLineParser {
     private CommandLine commandLine;
     private File outFile;
     private File inFile;
+    private final Logger logger = LoggerFactory.getLogger(PcapCommandLineParser.class);
     
-    
-    public PcapCommandLineParser(String[] args) {
+    public PcapCommandLineParser(String[] args) throws ParseException, IOException {
         this.args = args;
         this.addOptions();
         
@@ -41,9 +42,10 @@ public class PcapCommandLineParser {
             }
              
         } catch (ParseException ex) {
-            System.err.println("Fail, parse error: " + ex);
+            logger.error("Parse error: " + ex);
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("pcap-application", this.options);
+            throw ex;
         }
     }
 
@@ -62,17 +64,18 @@ public class PcapCommandLineParser {
                 .build());
     }
     
-    private void processFilesOption() {
+    private void processFilesOption() throws IOException {
 
         this.outFile = new File(commandLine.getOptionValues("f")[1]);
         this.inFile = new File(commandLine.getOptionValues("f")[0]);
+        
         try {
             if(!this.outFile.exists()) {
                 this.outFile.createNewFile();
             }
-        } catch (IOException e) {
-            System.err.println("OutFile wasn't created" + e);
-            exit(1);
+        } catch (IOException ex) {
+            logger.error("File creating error: " + ex);
+            throw ex;
         }
     }
     

@@ -4,17 +4,20 @@
  * and open the template in the editor.
  */
 package pcap.application;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import net.taunova.importer.pcap.PCapDatalink;
 import net.taunova.importer.pcap.PCapEventHandler;
 import net.taunova.importer.pcap.PCapInfo;
 import net.taunova.importer.pcap.PCapConst;
+
 /**
  *
  * @author maryan
@@ -25,6 +28,7 @@ public class ApplicationHandler implements PCapEventHandler {
     
     private long time;
     private int packetCount;
+    private final Logger logger = LoggerFactory.getLogger(ApplicationHandler.class);
     
     public ApplicationHandler(File file) throws FileNotFoundException {
         this.outStream = new DataOutputStream(new FileOutputStream(file));
@@ -57,35 +61,42 @@ public class ApplicationHandler implements PCapEventHandler {
             outStream.writeInt(info.getSnapshotLenght());
             outStream.writeInt(type.getType());
         } catch (IOException ex) {
-            System.err.println(ex);
+            logger.error("Global header - write error: " + ex);
         }
         
     }
 
     @Override
-    public void handleEntity(int saved, int actual, long timestamp, DataInputStream stream) throws IOException {
+    public void handleEntity(int saved, int actual, long timestamp, DataInputStream stream) {
         System.out.println("  Packet # saved: " + saved + " timestamp: " + timestamp);
         
         byte[] packet = new byte[saved];
         int seconds = (int) (timestamp / 1000000);    
         int microseconds = (int) (timestamp % 1000000); 
         
-        stream.read(packet);
-        long startTime = System.currentTimeMillis();
         try {
+            stream.read(packet);
+        } catch ( IOException ex ) {
+            logger.error("Packet read error: " + ex);
+        }
+        
+        try {
+            
+            long startTime = System.currentTimeMillis();
             
             outStream.writeInt(seconds);
             outStream.writeInt(microseconds);
             outStream.writeInt(saved);
             outStream.writeInt(actual);
             outStream.write(packet);
-        } catch (IOException ex) {
-            System.err.println(ex);
-        }
-        long endTime = System.currentTimeMillis();
+            long endTime = System.currentTimeMillis();
         
-        time += (endTime - startTime);
-        packetCount++;
+            time += (endTime - startTime);
+            packetCount++;
+        } catch (IOException ex) {
+            logger.error("Record header - write error: " + ex);
+        }
+        
     }
     
     public void showSavedPacketsTime() {
