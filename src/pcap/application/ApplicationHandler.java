@@ -67,7 +67,7 @@ public class ApplicationHandler implements PCapEventHandler {
     }
 
     @Override
-    public void handleEntity(int saved, int actual, long timestamp, DataInputStream stream) {
+    public void handleEntity(int saved, int actual, long timestamp, DataInputStream stream) throws IOException {
         System.out.println("  Packet # saved: " + saved + " timestamp: " + timestamp);
         
         byte[] packet = new byte[saved];
@@ -100,7 +100,7 @@ public class ApplicationHandler implements PCapEventHandler {
     }
     
     public void showSavedPacketsTime() {
-        System.out.println("Number of packets = " + packetCount + " saved for = " + time + " ms");
+        System.out.println("Number of packets: " + packetCount + " saved for: " + time + " ms");
     }
     
 }
