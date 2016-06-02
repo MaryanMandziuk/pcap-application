@@ -30,6 +30,7 @@ public class PcapCommandLineParser {
     private File outFile;
     private File inFile;
     private final Logger logger = LoggerFactory.getLogger(PcapCommandLineParser.class);
+    private DataFilter dataFilter = new DataFilter();
     
     public PcapCommandLineParser(String[] args) throws ParseException, IOException {
         this.args = args;
@@ -40,6 +41,10 @@ public class PcapCommandLineParser {
             if (commandLine.hasOption("f")) {
                 this.processFilesOption();
             }
+            if (commandLine.hasOption("C")) {
+                this.getSavedDataMore();
+            }
+            
              
         } catch (ParseException ex) {
             logger.error("Parse error: " + ex);
@@ -52,6 +57,7 @@ public class PcapCommandLineParser {
     
     private void addOptions() {
         this.filesOption();
+        this.moreLengthOption();
     }
     
     
@@ -62,6 +68,14 @@ public class PcapCommandLineParser {
                 .required()
                 .desc("required two filenames")
                 .build());
+    }
+    
+    private void moreLengthOption() {
+        options.addOption(Option.builder("C")
+               .numberOfArgs(1)
+               .argName("packetLength")
+               .desc("save packets wich lenght more than")
+               .build());
     }
     
     private void processFilesOption() throws IOException {
@@ -79,6 +93,10 @@ public class PcapCommandLineParser {
         }
     }
     
+    private void getSavedDataMore() {
+        this.dataFilter.savedData = Integer.parseInt(commandLine.getOptionValue("C"));
+        this.dataFilter.sMoreCommand = true;
+    }
     
     public File getInFile() {
         return this.inFile;
@@ -86,5 +104,9 @@ public class PcapCommandLineParser {
     
     public File getOutFile() {
         return this.outFile;
+    }
+    
+    public DataFilter getFilter() {
+        return this.dataFilter;
     }
 }

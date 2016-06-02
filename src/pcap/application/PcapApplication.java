@@ -33,12 +33,12 @@ public class PcapApplication {
         
         System.out.println("PCap application"); 
         final Logger logger = LoggerFactory.getLogger(PcapApplication.class);
-        String[] myArgs = {"-f","testPcap.pcap", "my1.pcap"};
+        String[] myArgs = {"-f","iperf-mptcp-0-0.pcap", "my.pcap", "-C", "100"};
         PcapCommandLineParser parser = new PcapCommandLineParser(myArgs);
          
         
         try {
-            ApplicationHandler handler = new ApplicationHandler(parser.getOutFile());
+            ApplicationHandler handler = new ApplicationHandler(parser.getOutFile(), parser.getFilter());
             PCapImportTask importTask = PCapHelper.createImportTask(parser.getInFile(), handler);
             importTask.init();
 

@@ -29,9 +29,11 @@ public class ApplicationHandler implements PCapEventHandler {
     private long time;
     private int packetCount;
     private final Logger logger = LoggerFactory.getLogger(ApplicationHandler.class);
+    private final DataFilter dataFilter;
     
-    public ApplicationHandler(File file) throws FileNotFoundException {
+    public ApplicationHandler(File file, DataFilter dataFilter) throws FileNotFoundException {
         this.outStream = new DataOutputStream(new FileOutputStream(file));
+        this.dataFilter = dataFilter;
     }
     
     @Override
@@ -68,35 +70,38 @@ public class ApplicationHandler implements PCapEventHandler {
 
     @Override
     public void handleEntity(int saved, int actual, long timestamp, DataInputStream stream) throws IOException {
-        System.out.println("  Packet # saved: " + saved + " timestamp: " + timestamp);
         
+        if (dataFilter.checkData(saved, actual, timestamp)) {
+            stream.skip(saved);
+        } else {
+        System.out.println("  Packet # saved: " + saved + " timestamp: " + timestamp);
         byte[] packet = new byte[saved];
         int seconds = (int) (timestamp / 1000000);    
         int microseconds = (int) (timestamp % 1000000); 
         
-        try {
-            stream.read(packet);
-        } catch ( IOException ex ) {
-            logger.error("Packet read error: " + ex);
+            try {
+                stream.read(packet);
+            } catch ( IOException ex ) {
+                logger.error("Packet read error: " + ex);
+            }
+
+            try {
+
+                long startTime = System.currentTimeMillis();
+
+                outStream.writeInt(seconds);
+                outStream.writeInt(microseconds);
+                outStream.writeInt(saved);
+                outStream.writeInt(actual);
+                outStream.write(packet);
+                long endTime = System.currentTimeMillis();
+
+                time += (endTime - startTime);
+                packetCount++;
+            } catch (IOException ex) {
+                logger.error("Record header - write error: " + ex);
+            }
         }
-        
-        try {
-            
-            long startTime = System.currentTimeMillis();
-            
-            outStream.writeInt(seconds);
-            outStream.writeInt(microseconds);
-            outStream.writeInt(saved);
-            outStream.writeInt(actual);
-            outStream.write(packet);
-            long endTime = System.currentTimeMillis();
-        
-            time += (endTime - startTime);
-            packetCount++;
-        } catch (IOException ex) {
-            logger.error("Record header - write error: " + ex);
-        }
-        
     }
     
     public void showSavedPacketsTime() {
