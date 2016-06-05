@@ -29,9 +29,9 @@ public class ApplicationHandler implements PCapEventHandler {
     private long time;
     private int packetCount;
     private final Logger logger = LoggerFactory.getLogger(ApplicationHandler.class);
-    private final DataFilter dataFilter;
+    private final Filter dataFilter;
     
-    public ApplicationHandler(File file, DataFilter dataFilter) throws FileNotFoundException {
+    public ApplicationHandler(File file, Filter dataFilter) throws FileNotFoundException {
         this.outStream = new DataOutputStream(new FileOutputStream(file));
         this.dataFilter = dataFilter;
     }
@@ -70,10 +70,14 @@ public class ApplicationHandler implements PCapEventHandler {
 
     @Override
     public void handleEntity(int saved, int actual, long timestamp, DataInputStream stream) throws IOException {
-        
+        System.out.println(saved);
         if (dataFilter.checkData(saved, actual, timestamp)) {
+            
             stream.skip(saved);
+            
         } else {
+            
+            
         System.out.println("  Packet # saved: " + saved + " timestamp: " + timestamp);
         byte[] packet = new byte[saved];
         int seconds = (int) (timestamp / 1000000);    
