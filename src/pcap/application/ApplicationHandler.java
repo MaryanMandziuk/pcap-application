@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pcap.application;
 
 import java.io.DataInputStream;
@@ -19,7 +14,7 @@ import net.taunova.importer.pcap.PCapInfo;
 import net.taunova.importer.pcap.PCapConst;
 
 /**
- *
+ * Pcap application handler
  * @author maryan
  */
 public class ApplicationHandler implements PCapEventHandler {
@@ -29,11 +24,11 @@ public class ApplicationHandler implements PCapEventHandler {
     private long time;
     private int packetCount;
     private final Logger logger = LoggerFactory.getLogger(ApplicationHandler.class);
-    private final Filter dataFilter;
+    private final Filter filter;
     
     public ApplicationHandler(File file, Filter dataFilter) throws FileNotFoundException {
         this.outStream = new DataOutputStream(new FileOutputStream(file));
-        this.dataFilter = dataFilter;
+        this.filter = dataFilter;
     }
     
     @Override
@@ -65,24 +60,17 @@ public class ApplicationHandler implements PCapEventHandler {
         } catch (IOException ex) {
             logger.error("Global header - write error: " + ex);
         }
-        
     }
 
     @Override
     public void handleEntity(int saved, int actual, long timestamp, DataInputStream stream) throws IOException {
-        System.out.println(saved);
-        if (dataFilter.checkData(saved, actual, timestamp)) {
-            
-            stream.skip(saved);
-            
-        } else {
-            
-            
-        System.out.println("  Packet # saved: " + saved + " timestamp: " + timestamp);
-        byte[] packet = new byte[saved];
         int seconds = (int) (timestamp / 1000000);    
         int microseconds = (int) (timestamp % 1000000); 
+        RecordFields record = new RecordFields(seconds, microseconds, saved, actual);
         
+        if (filter.compare(record)) {
+            System.out.println("  Packet # saved: " + saved + " timestamp: " + timestamp);
+            byte[] packet = new byte[saved];
             try {
                 stream.read(packet);
             } catch ( IOException ex ) {
@@ -90,21 +78,20 @@ public class ApplicationHandler implements PCapEventHandler {
             }
 
             try {
-
                 long startTime = System.currentTimeMillis();
-
                 outStream.writeInt(seconds);
                 outStream.writeInt(microseconds);
                 outStream.writeInt(saved);
                 outStream.writeInt(actual);
                 outStream.write(packet);
                 long endTime = System.currentTimeMillis();
-
                 time += (endTime - startTime);
                 packetCount++;
             } catch (IOException ex) {
                 logger.error("Record header - write error: " + ex);
-            }
+            } 
+        } else {
+            stream.skip(saved);
         }
     }
     

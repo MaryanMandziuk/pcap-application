@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pcap.application;
 
 import java.io.FileNotFoundException;
@@ -21,7 +16,8 @@ import org.slf4j.LoggerFactory;
  */
 public class PcapApplication {
 
-    /**
+    /** 
+     * Pcap application for filtering packets
      * @param args the command line arguments
      * @throws org.apache.commons.cli.ParseException
      * @throws java.io.IOException
@@ -33,10 +29,9 @@ public class PcapApplication {
         
         System.out.println("PCap application"); 
         final Logger logger = LoggerFactory.getLogger(PcapApplication.class);
-        String[] myArgs = {"-f","iperf-mptcp-0-0.pcap", "my.pcap", "-CC", "100"};
+        String[] myArgs = {"-f","iperf-mptcp-0-0.pcap", "my.pcap"};
         PcapCommandLineParser parser = new PcapCommandLineParser(myArgs);
          
-        
         try {
             ApplicationHandler handler = new ApplicationHandler(parser.getOutFile(), parser.getFilter());
             PCapImportTask importTask = PCapHelper.createImportTask(parser.getInFile(), handler);

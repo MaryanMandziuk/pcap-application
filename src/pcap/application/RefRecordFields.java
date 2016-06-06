@@ -1,12 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pcap.application;
 
 /**
- *
+ * Retriving fields
  * @author maryan
  */
 public class RefRecordFields {
@@ -27,9 +22,10 @@ public class RefRecordFields {
                 break;
             case "saved" :
                 f = (d) -> d.getSaved();
+                break;
             case "actual" :
                 f = (d) -> d.getMsec();                
-                
+                break;
         }
     }
     

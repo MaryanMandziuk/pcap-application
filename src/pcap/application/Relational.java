@@ -1,20 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pcap.application;
 
 /**
- *
+ * Representing relations
  * @author maryan
  */
 public class Relational {
-    
- 
+   
     private RelationInt f;
     
-     interface RelationInt {
+    interface RelationInt {
         boolean operation(int a, int b);   
     }
 
@@ -22,18 +16,22 @@ public class Relational {
         switch(rel) {
             case ">" :
                 f = (a, b) -> a > b;
-                    break;
+                break;
             case "<" :
                 f = (a, b) -> a < b;
-                    break;
+                break;
             case ">=" :
                 f = (a, b) -> a >= b;
+                break;
             case "<=" :
                 f = (a, b) -> a <= b;
+                break;
             case "==" :
                 f = (a, b) -> a == b;
+                break;
             case "!=" :
                 f = (a, b) -> a != b;
+                break;
         }
     }
     

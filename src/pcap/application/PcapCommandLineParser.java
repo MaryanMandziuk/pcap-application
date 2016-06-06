@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pcap.application;
 
 import java.io.File;
@@ -18,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * Command Line options parser for pcap
  * @author maryan
  */
 public class PcapCommandLineParser {
@@ -30,7 +25,7 @@ public class PcapCommandLineParser {
     private File outFile;
     private File inFile;
     private final Logger logger = LoggerFactory.getLogger(PcapCommandLineParser.class);
-    private Filter dataFilter = new Filter();
+    private Filter filter = new Filter();
     
     public PcapCommandLineParser(String[] args) throws ParseException, IOException {
         this.args = args;
@@ -41,7 +36,7 @@ public class PcapCommandLineParser {
             if (commandLine.hasOption("f")) {
                 this.processFilesOption();
             }
-            if (commandLine.hasOption("CC")) {
+            if (commandLine.hasOption("c")) {
                 this.getSavedDataMore();
             }
             
@@ -53,13 +48,11 @@ public class PcapCommandLineParser {
             throw ex;
         }
     }
-
     
     private void addOptions() {
         this.filesOption();
         this.moreLengthOption();
     }
-    
     
     private void filesOption() {
         options.addOption(Option.builder("f")
@@ -94,8 +87,8 @@ public class PcapCommandLineParser {
     }
     
     private void getSavedDataMore() {
-        this.dataFilter.savedData = Integer.parseInt(commandLine.getOptionValue("CC"));
-        this.dataFilter.sMoreCommand = true;
+//        this.dataFilter.savedData = Integer.parseInt(commandLine.getOptionValue("CC"));
+//        this.dataFilter.sMoreCommand = true;
     }
     
     public File getInFile() {
@@ -107,6 +100,6 @@ public class PcapCommandLineParser {
     }
     
     public Filter getFilter() {
-        return this.dataFilter;
+        return this.filter;
     }
 }

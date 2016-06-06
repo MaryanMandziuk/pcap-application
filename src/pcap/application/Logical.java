@@ -1,15 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pcap.application;
 
 /**
- *
+ * Representing logical operators
  * @author maryan
  */
 public class Logical {
+    
     private LogicalInt f;
     
     interface LogicalInt {
@@ -23,10 +19,8 @@ public class Logical {
                 break;
             case "||":
                 f = (a, b) -> a || b;
-                break;
-                
-        }
-        
+                break;       
+        }    
     }
     
     public boolean compare(boolean a, boolean b) {
